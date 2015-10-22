@@ -2,6 +2,7 @@ import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.crypto.util.PublicKeyFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class RSATest {
 
         rsaEngine.init(true, PublicKeyFactory.createKey(publicKey.getEncoded()));
         byte[] cipher = rsaEngine.processBlock(PLAIN_TEXT.getBytes(), 0, PLAIN_TEXT.getBytes().length);
-        System.out.println("Cipher: " + new String(cipher));
+        System.out.println("Cipher: " + Hex.toHexString(cipher));
 
         rsaEngine.init(false, PrivateKeyFactory.createKey(privateKey.getEncoded()));
         byte[] decrypted = rsaEngine.processBlock(cipher, 0, cipher.length);
