@@ -140,6 +140,7 @@ public class CoinFlipClient {
      * @return true if all calculations were correct, false if there were errors
      */
     public boolean checkCalculations(String coin, AsymmetricCipherKeyPair otherKeyPair) {
+        // TODO: this is a shitty test. it will always return true, regardless of the coin passed
         if (isInitiator) {
             String encryptedCoin = encryptCoin(coin, this.keyPair);
             String twiceEncryptedCoin = encryptCoin(encryptedCoin, otherKeyPair);
