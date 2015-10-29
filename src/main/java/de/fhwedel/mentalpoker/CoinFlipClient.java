@@ -33,6 +33,7 @@ public class CoinFlipClient {
 
     private String pickedEncryptedCoin;
     private String receivedTwiceEncryptedCoin;
+    private String[] encryptedCoins;
 
     public CoinFlipClient(BigInteger p, BigInteger q, boolean isInitiator) {
         try {
@@ -119,6 +120,7 @@ public class CoinFlipClient {
      * @return twice-encrypted coin
      */
     public String getTwiceEncryptedCoin(String[] coins) {
+        this.encryptedCoins = coins;
         String coin = pickRandomCoin(coins);
         pickedEncryptedCoin = coin;
         return encryptCoin(coin, this.keyPair);
@@ -142,9 +144,16 @@ public class CoinFlipClient {
         if (isInitiator) {
             return coin.equals(decryptCoin(decryptCoin(receivedTwiceEncryptedCoin, this.keyPair), otherKeyPair));
         } else {
-            // Bob uses Alice's key to decrypt the coin he initially picked and compared it with the result
+            // Bob checks if the initial list of coins he received from Alice contained both a 'Heads' and a 'Tails' coin
+            String coin1 = new String(Hex.decode(decryptCoin(encryptedCoins[0], otherKeyPair)));
+            String coin2 = new String(Hex.decode(decryptCoin(encryptedCoins[1], otherKeyPair)));
+            boolean listWasValid = (coin1.startsWith(HEADS) && coin2.startsWith(TAILS)) || (coin1.startsWith(TAILS) && coin2.startsWith(HEADS));
+
+            // Bob uses Alice's key to decrypt the coin he initially picked and compares it with the result
             String coinResultingFromPick = decryptCoin(pickedEncryptedCoin, otherKeyPair);
-            return coin.equals(coinResultingFromPick);
+            boolean resultCoinEqualsDecryptedCoin = coin.equals(coinResultingFromPick);
+
+            return listWasValid && resultCoinEqualsDecryptedCoin;
         }
     }
 
