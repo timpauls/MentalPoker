@@ -26,6 +26,7 @@ public class CoinFlipTest {
 
         String bobEncryptedCoin = alice.decryptCoin(twiceEncryptedCoin);
 
+        // Bob guesses a random string
         String resultCoin = Hex.toHexString("Tailsasdasdasdasdasd".getBytes());
 
         assertThat(alice.isRandomStringCorrect(resultCoin)).isFalse();

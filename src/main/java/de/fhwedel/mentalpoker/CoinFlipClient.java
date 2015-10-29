@@ -31,6 +31,9 @@ public class CoinFlipClient {
     private final String paddedHeads;
     private final String paddedTails;
 
+    private String pickedEncryptedCoin;
+    private String receivedTwiceEncryptedCoin;
+
     public CoinFlipClient(BigInteger p, BigInteger q, boolean isInitiator) {
         try {
             secureRandom = SecureRandom.getInstance(SECURE_RANDOM_ALGORITHM);
@@ -104,6 +107,9 @@ public class CoinFlipClient {
     }
 
     public String decryptCoin(String encryptedCoin) {
+        if (isInitiator) {
+            receivedTwiceEncryptedCoin = encryptedCoin;
+        }
         return decryptCoin(encryptedCoin, this.keyPair);
     }
 
@@ -114,6 +120,7 @@ public class CoinFlipClient {
      */
     public String getTwiceEncryptedCoin(String[] coins) {
         String coin = pickRandomCoin(coins);
+        pickedEncryptedCoin = coin;
         return encryptCoin(coin, this.keyPair);
     }
 
@@ -132,19 +139,12 @@ public class CoinFlipClient {
      * @return true if all calculations were correct, false if there were errors
      */
     public boolean checkCalculations(String coin, AsymmetricCipherKeyPair otherKeyPair) {
-        // TODO: this is a shitty test. it will always return true, regardless of the coin passed
         if (isInitiator) {
-            String encryptedCoin = encryptCoin(coin, this.keyPair);
-            String twiceEncryptedCoin = encryptCoin(encryptedCoin, otherKeyPair);
-            String othersEncryptedCoin = decryptCoin(twiceEncryptedCoin, this.keyPair);
-            String decryptedCoin = decryptCoin(othersEncryptedCoin, otherKeyPair);
-            return coin.equals(decryptedCoin);
+            return coin.equals(decryptCoin(decryptCoin(receivedTwiceEncryptedCoin, this.keyPair), otherKeyPair));
         } else {
-            String encryptedCoin = encryptCoin(coin, otherKeyPair);
-            String twiceEncryptedCoin = encryptCoin(encryptedCoin, this.keyPair);
-            String myEncryptedCoin = decryptCoin(twiceEncryptedCoin, otherKeyPair);
-            String decryptedCoin = decryptCoin(myEncryptedCoin, this.keyPair);
-            return coin.equals(decryptedCoin);
+            // Bob uses Alice's key to decrypt the coin he initially picked and compared it with the result
+            String coinResultingFromPick = decryptCoin(pickedEncryptedCoin, otherKeyPair);
+            return coin.equals(coinResultingFromPick);
         }
     }
 
