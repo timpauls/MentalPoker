@@ -15,8 +15,6 @@ import java.security.SecureRandom;
  */
 public class CoinFlipClient {
 
-    private static final BigInteger P = new BigInteger("f75e80839b9b9379f1cf1128f321639757dba514642c206bbbd99f9a4846208b3e93fbbe5e0527cc59b1d4b929d9555853004c7c8b30ee6a213c3d1bb7415d03", 16);
-    private static final BigInteger Q = new BigInteger("b892d9ebdbfc37e397256dd8a5d3123534d1f03726284743ddc6be3a709edb696fc40c7d902ed804c6eee730eee3d5b20bf6bd8d87a296813c87d3b3cc9d7947", 16);
     private static final int CERTAINTY = 5;
     private static final String SECURE_RANDOM_ALGORITHM = "SHA1PRNG";
     private static final String HEADS = "Heads";
@@ -33,22 +31,16 @@ public class CoinFlipClient {
     private final String paddedHeads;
     private final String paddedTails;
 
-    public CoinFlipClient(BigInteger p, BigInteger q) {
+    public CoinFlipClient(BigInteger p, BigInteger q, boolean isInitiator) {
         try {
             secureRandom = SecureRandom.getInstance(SECURE_RANDOM_ALGORITHM);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Fatal: could not instantiate SecureRandom with algorithm " + SECURE_RANDOM_ALGORITHM);
         }
 
-        if (null == p || null == q) {
-            isInitiator = true;
-            this.p = P;
-            this.q = Q;
-        } else {
-            this.p = p;
-            this.q = q;
-            isInitiator = false;
-        }
+        this.p = p;
+        this.q = q;
+        this.isInitiator = isInitiator;
 
         keyPair = generateKeyPair(this.p, this.q);
         sraEngine = new SRAEngine();

@@ -12,11 +12,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class CoinFlipTest {
 
+    private static final BigInteger P = new BigInteger("f75e80839b9b9379f1cf1128f321639757dba514642c206bbbd99f9a4846208b3e93fbbe5e0527cc59b1d4b929d9555853004c7c8b30ee6a213c3d1bb7415d03", 16);
+    private static final BigInteger Q = new BigInteger("b892d9ebdbfc37e397256dd8a5d3123534d1f03726284743ddc6be3a709edb696fc40c7d902ed804c6eee730eee3d5b20bf6bd8d87a296813c87d3b3cc9d7947", 16);
 
     @Test
     public void testCheatingClientsWrongResultCoin() throws Exception {
-        CoinFlipClient alice = new CoinFlipClient(null, null);
-        CoinFlipClient bob = new CoinFlipClient(alice.getP(), alice.getQ());
+        CoinFlipClient alice = new CoinFlipClient(P, Q, true);
+        CoinFlipClient bob = new CoinFlipClient(alice.getP(), alice.getQ(), false);
 
         String[] encryptedCoins = alice.getEncryptedCoins();
 
@@ -33,8 +35,8 @@ public class CoinFlipTest {
 
     @Test
     public void testHonestCoinFlipClients() throws Exception {
-        CoinFlipClient alice = new CoinFlipClient(null, null);
-        CoinFlipClient bob = new CoinFlipClient(alice.getP(), alice.getQ());
+        CoinFlipClient alice = new CoinFlipClient(P, Q, true);
+        CoinFlipClient bob = new CoinFlipClient(alice.getP(), alice.getQ(), false);
 
         String[] encryptedCoins = alice.getEncryptedCoins();
 
