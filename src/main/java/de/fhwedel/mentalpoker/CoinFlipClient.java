@@ -57,7 +57,7 @@ public class CoinFlipClient {
     }
 
     private AsymmetricCipherKeyPair generateKeyPair(BigInteger p, BigInteger q) {
-        SRAKeyGenerationParameters keyGenerationParameters = new SRAKeyGenerationParameters(p, q, secureRandom, CERTAINTY);
+        SRAKeyGenerationParameters keyGenerationParameters = new SRAKeyGenerationParameters(p, q, secureRandom, 80, CERTAINTY);
         SRAKeyPairGenerator sraKeyPairGenerator = new SRAKeyPairGenerator();
         sraKeyPairGenerator.init(keyGenerationParameters);
         return sraKeyPairGenerator.generateKeyPair();
