@@ -61,6 +61,9 @@ public class Protocol {
         this.payload = payload;
     }
 
+    public boolean isValid() {
+        return statusId == 0;
+    }
 
     public static class Builder {
         private Protocol mProtocol;

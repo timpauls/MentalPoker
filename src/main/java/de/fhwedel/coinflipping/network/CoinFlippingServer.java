@@ -25,9 +25,6 @@ public class CoinFlippingServer {
             String inputLine, outputLine;
 
             System.out.println("Accept connection from: " + clientSocket.getInetAddress());
-            System.out.println("> Hello there.");
-
-            out.println("Hello there.");
 
             while ((inputLine = in.readLine()) != null) {
                 System.out.println("< " + inputLine);

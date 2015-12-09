@@ -1,8 +1,7 @@
 package de.fhwedel.coinflipping.network;
 
-import de.fhwedel.coinflipping.model.AvailableVersion;
+import de.fhwedel.coinflipping.handling.ClientProtocolHandler;
 import de.fhwedel.coinflipping.model.Protocol;
-import de.fhwedel.coinflipping.model.ProtocolNegotiation;
 import de.fhwedel.coinflipping.util.JsonUtil;
 
 import java.io.BufferedReader;
@@ -37,8 +36,7 @@ public class CoinFlippingClient {
             mIn = in;
 
             System.out.println("Established connection to: " + socket.getInetAddress());
-
-            // TODO: initiate protocol
+            
             performProtocol();
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host " + TARGET_HOST);
@@ -49,33 +47,47 @@ public class CoinFlippingClient {
         }
     }
 
-    private static void sendAndLog(String message) {
+    private static void sendAndLogString(String message) {
         mOut.println(message);
-        System.out.println(">" + message);
+        System.out.println("> " + message);
     }
 
-    private static String readAndLog() throws IOException {
+    private static void sendAndLog(Protocol protocol) {
+        sendAndLogString(JsonUtil.toJson(protocol));
+    }
+
+    private static String readAndLogString() throws IOException {
         String message = mIn.readLine();
         System.out.println("< " + message);
         return message;
     }
 
+    private static Protocol readAndLog() throws IOException {
+        String message = readAndLogString();
+        return JsonUtil.fromJson(message, Protocol.class);
+    }
+
     private static void performProtocol() throws IOException {
-        Protocol protocol = new Protocol.Builder()
-                .setProtocolId(0)
-                .setStatusId(0)
-                .setStatusMessage(Protocol.STATUS_OK)
-                .setProtocolNegotiation(new ProtocolNegotiation(new AvailableVersion("1.0")))
-                .build();
+        // we initiate the protocol
+        Protocol protocol = ClientProtocolHandler.initiateProtocol();
+        sendAndLog(protocol);
 
-        String x = JsonUtil.toJson(protocol);
-        sendAndLog(x);
+        while (true) {
+            // we expect a response and handle it
+            Protocol protocolResponse = readAndLog();
+            Protocol nextStep = ClientProtocolHandler.handleProtocolStep(protocolResponse);
 
-        String response = readAndLog();
-        Protocol protocolResponse = JsonUtil.fromJson(response, Protocol.class);
-        if (protocolResponse != null && protocolResponse.getStatusId() != 0) {
-            System.out.println("Error in protocol! Closing socket.");
-            mSocket.close();
+            // if handling the response led to an error, it will be clear from our next step message
+            if (nextStep.isValid()) {
+                sendAndLog(nextStep);
+            } else {
+                System.out.println("Error in protocol: " + nextStep.getStatusMessage());
+                System.out.println("Closing socket.");
+                mSocket.close();
+                break;
+            }
         }
+
+        System.out.println("Protocol has finished.");
     }
 }
