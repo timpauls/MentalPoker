@@ -1,7 +1,6 @@
 package de.fhwedel.coinflipping.model;
 
 import com.google.gson.Gson;
-import de.fhwedel.mentalpoker.de.fhwedel.coinflipping.model.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
