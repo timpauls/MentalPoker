@@ -14,6 +14,7 @@ public class CoinFlippingServer {
     private static final int SERVER_PORT = 6882;
 
     public static void main(String[] args) throws IOException {
+        System.out.println("Starting server on port " + SERVER_PORT);
 
         try (
             ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
