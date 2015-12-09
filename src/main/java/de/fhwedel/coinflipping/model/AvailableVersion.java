@@ -1,4 +1,4 @@
-package de.fhwedel.mentalpoker.de.fhwedel.coinflipping.model;
+package de.fhwedel.coinflipping.model;
 
 import java.util.Arrays;
 import java.util.List;

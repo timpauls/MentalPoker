@@ -1,4 +1,4 @@
-package de.fhwedel.mentalpoker.de.fhwedel.coinflipping.model;
+package de.fhwedel.coinflipping.model;
 
 /**
  * Model class for the protocol. Based on http://redmine.fh-wedel.de/attachments/125/protocol.txt
