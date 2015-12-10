@@ -3,6 +3,7 @@ package de.fhwedel.coinflipping.network;
 import de.fhwedel.coinflipping.handling.ClientProtocolHandler;
 import de.fhwedel.coinflipping.model.Protocol;
 import de.fhwedel.coinflipping.util.JsonUtil;
+import de.fhwedel.coinflipping.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,10 +16,10 @@ import java.net.UnknownHostException;
  * Created by tim on 09.12.2015.
  */
 public class CoinFlippingClient {
-//    private static final String TARGET_HOST = "87.106.43.47";
-//    private static final int TARGET_PORT = 50000;
-    private static final String TARGET_HOST = "localhost";
-    private static final int TARGET_PORT = 6882;
+    private static final String TARGET_HOST = "87.106.43.47";
+    private static final int TARGET_PORT = 50000;
+//    private static final String TARGET_HOST = "localhost";
+//    private static final int TARGET_PORT = 6882;
 
     private static Socket mSocket;
     private static PrintWriter mOut;
@@ -35,21 +36,21 @@ public class CoinFlippingClient {
             mOut = out;
             mIn = in;
 
-            System.out.println("Established connection to: " + socket.getInetAddress());
-            
+            Log.info("Established connection to: " + socket.getInetAddress());
+
             performProtocol();
         } catch (UnknownHostException e) {
-            System.err.println("Don't know about host " + TARGET_HOST);
+            Log.error("Don't know about host " + TARGET_HOST, e);
             System.exit(1);
         } catch (IOException e) {
-            System.err.println("Couldn't get I/O for the connection to " + TARGET_PORT);
+            Log.error("Couldn't get I/O for the connection to " + TARGET_PORT);
             System.exit(1);
         }
     }
 
     private static void sendAndLogString(String message) {
         mOut.println(message);
-        System.out.println("> " + message);
+        Log.info("> " + message);
     }
 
     private static void sendAndLog(Protocol protocol) {
@@ -58,7 +59,7 @@ public class CoinFlippingClient {
 
     private static String readAndLogString() throws IOException {
         String message = mIn.readLine();
-        System.out.println("< " + message);
+        Log.info("< " + message);
         return message;
     }
 
@@ -81,13 +82,13 @@ public class CoinFlippingClient {
             if (nextStep.isValid()) {
                 sendAndLog(nextStep);
             } else {
-                System.out.println("Error in protocol: " + nextStep.getStatusMessage());
-                System.out.println("Closing socket.");
+                Log.error("Error in protocol: " + nextStep.getStatusMessage());
+                Log.info("Closing socket.");
                 mSocket.close();
                 break;
             }
         }
 
-        System.out.println("Protocol has finished.");
+        Log.info("Protocol has finished.");
     }
 }

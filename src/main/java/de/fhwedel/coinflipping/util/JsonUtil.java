@@ -22,6 +22,7 @@ public class JsonUtil {
         try {
             return mGson.fromJson(jsonString, cls);
         } catch (JsonSyntaxException e) {
+            Log.error("Error in received JSON: " + jsonString, e);
             return null;
         }
     }

@@ -5,6 +5,7 @@ package de.fhwedel.coinflipping.model;
  */
 public class Protocol {
     public static final String STATUS_OK = "OK";
+    public static final int STATUS_ID_OK = 0;
 
     private Integer protocolId;
     private Integer statusId;

@@ -1,8 +1,8 @@
 package de.fhwedel.coinflipping.handling;
 
-import de.fhwedel.coinflipping.model.AvailableVersion;
-import de.fhwedel.coinflipping.model.Protocol;
-import de.fhwedel.coinflipping.model.ProtocolNegotiation;
+import de.fhwedel.coinflipping.config.ClientConfig;
+import de.fhwedel.coinflipping.model.*;
+import de.fhwedel.coinflipping.util.StringUtil;
 
 /**
  * Created by tim on 09.12.2015.
@@ -12,9 +12,9 @@ public class ClientProtocolHandler {
     public static Protocol initiateProtocol() {
         return new Protocol.Builder()
                 .setProtocolId(0)
-                .setStatusId(0)
+                .setStatusId(Protocol.STATUS_ID_OK)
                 .setStatusMessage(Protocol.STATUS_OK)
-                .setProtocolNegotiation(new ProtocolNegotiation(new AvailableVersion("1.0")))
+                .setProtocolNegotiation(new ProtocolNegotiation(new AvailableVersion(ClientConfig.SUPPORTED_PROTOCOL_VERSIONS)))
                 .build();
     }
 
@@ -33,7 +33,7 @@ public class ClientProtocolHandler {
             } else {
                 switch (protocolId) {
                     case 1:
-                        response = error("Not yet implemented!");
+                        response = handleStep1(protocol);
                         break;
                     case 3:
                         response = error("Not yet implemented!");
@@ -54,9 +54,20 @@ public class ClientProtocolHandler {
         return response;
     }
 
+    private static Protocol handleStep1(Protocol protocol) {
+        String version = protocol.getProtocolNegotiation().getVersion();
+        if (!StringUtil.isEmpty(version)) {
+            protocol.setProtocolId(2);
+            protocol.setKeyNegotiation(new KeyNegotiation(null, null, null, new AvailableSids(ClientConfig.SUPPORTED_SIDS)));
+            return protocol;
+        } else {
+            return error("Received protocol version is null or empty!");
+        }
+    }
+
     private static Protocol error(String errorMessage) {
         return new Protocol.Builder()
                 .setStatusId(Integer.MIN_VALUE)
-                .setStatusMessage("Error:" + errorMessage).build();
+                .setStatusMessage("Error: " + errorMessage).build();
     }
 }
