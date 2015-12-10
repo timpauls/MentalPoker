@@ -50,7 +50,7 @@ public class CryptoUtil {
         try {
             mEngine.init(Cipher.ENCRYPT_MODE, mKeyPair.getPublic());
             byte[] cipherBytes = mEngine.doFinal(plain.getBytes());
-            return Hex.encode(cipherBytes).toString();
+            return Hex.toHexString(cipherBytes);
         } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             return null;
         }
