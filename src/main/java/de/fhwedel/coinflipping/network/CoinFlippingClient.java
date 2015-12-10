@@ -16,8 +16,8 @@ import java.net.UnknownHostException;
  * Created by tim on 09.12.2015.
  */
 public class CoinFlippingClient {
-    private static final String TARGET_HOST = "87.106.43.47";
-    private static final int TARGET_PORT = 50000;
+    private static final String TARGET_HOST = "54.77.97.90";
+    private static final int TARGET_PORT = 4444;
 //    private static final String TARGET_HOST = "localhost";
 //    private static final int TARGET_PORT = 6882;
 

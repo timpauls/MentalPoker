@@ -2,7 +2,10 @@ package de.fhwedel.coinflipping.handling;
 
 import de.fhwedel.coinflipping.config.ClientConfig;
 import de.fhwedel.coinflipping.model.*;
+import de.fhwedel.coinflipping.util.CryptoUtil;
 import de.fhwedel.coinflipping.util.StringUtil;
+
+import java.math.BigInteger;
 
 /**
  * Created by tim on 09.12.2015.
@@ -36,7 +39,7 @@ public class ClientProtocolHandler {
                         response = handleStep1(protocol);
                         break;
                     case 3:
-                        response = error("Not yet implemented!");
+                        response = handleStep3(protocol);
                         break;
                     case 5:
                         response = error("Not yet implemented!");
@@ -62,6 +65,34 @@ public class ClientProtocolHandler {
             return protocol;
         } else {
             return error("Received protocol version is null or empty!");
+        }
+    }
+
+    private static Protocol handleStep3(Protocol protocol) {
+        if (protocol.getKeyNegotiation() != null) {
+            BigInteger p = protocol.getKeyNegotiation().getP();
+            BigInteger q = protocol.getKeyNegotiation().getQ();
+            Integer sidId = protocol.getKeyNegotiation().getSid();
+            Sid sid = Sid.findById(sidId);
+
+            try {
+                CryptoUtil cryptoUtil = new CryptoUtil(sid, p, q);
+                String encryptedCoin0 = cryptoUtil.encryptString(ClientConfig.INITIAL_COINS[0]);
+                String encryptedCoin1 = cryptoUtil.encryptString(ClientConfig.INITIAL_COINS[1]);
+
+                protocol.setProtocolId(4);
+                Payload payload = new Payload.Builder()
+                        .setInitialCoin(ClientConfig.INITIAL_COINS)
+                        .setEncryptedCoin(encryptedCoin0, encryptedCoin1) // TODO: shuffle encrypted coins
+                        .build();
+
+                protocol.setPayload(payload);
+                return protocol;
+            } catch (Exception e) {
+                return error("Something went wrong during coin encryption!");
+            }
+        } else {
+            return error("Received key negotiation is null or unparsable!");
         }
     }
 
