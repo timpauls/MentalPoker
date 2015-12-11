@@ -45,4 +45,21 @@ public class ClientProtocolHandlerTest {
         assertThat(payload.getEncryptedCoin().size()).isEqualTo(ClientConfig.INITIAL_COINS.length);
     }
 
+    @Test
+    public void testHandleStep5() throws Exception {
+        // TODO: not working! BadPadding
+        // needed to setup CryptoUtils
+        Protocol protocolStep3 = JsonUtil.fromJson(SampleProtocolSteps.STEP_3, Protocol.class);
+        Protocol irrelevant = ClientProtocolHandler.handleProtocolStep(protocolStep3);
+
+        Protocol protocolStep5 = JsonUtil.fromJson(SampleProtocolSteps.STEP_5, Protocol.class);
+        Protocol response = ClientProtocolHandler.handleProtocolStep(protocolStep5);
+
+        assertThat(response.getProtocolId()).isEqualTo(6);
+        Payload payload = response.getPayload();
+        assertThat(payload).isNotNull();
+        assertThat(payload.getDeChosenCoin()).isNotEmpty();
+        assertThat(payload.getKeyA().size()).isEqualTo(2);
+    }
+
 }

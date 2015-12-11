@@ -76,12 +76,20 @@ public class Payload {
         this.keyA = keyA;
     }
 
+    public void setKeyA(BigInteger... keys) {
+        this.setKeyA(Arrays.asList(keys));
+    }
+
     public List<BigInteger> getKeyB() {
         return keyB;
     }
 
     public void setKeyB(List<BigInteger> keyB) {
         this.keyB = keyB;
+    }
+
+    public void setKeyB(BigInteger... keys) {
+        this.setKeyB(Arrays.asList(keys));
     }
 
     public String getSignatureA() {

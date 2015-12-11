@@ -1,6 +1,7 @@
 package de.fhwedel.coinflipping.util;
 
 import de.fhwedel.coinflipping.model.Sid;
+import org.bouncycastle.jcajce.provider.asymmetric.sra.SRADecryptionKeySpec;
 import org.bouncycastle.jcajce.provider.asymmetric.sra.SRAKeyGenParameterSpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
@@ -11,6 +12,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.math.BigInteger;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 
 /**
  * Created by tim on 10.12.15.
@@ -54,5 +56,26 @@ public class CryptoUtil {
         } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             return null;
         }
+    }
+
+    public String decryptString(String cipher) {
+        try {
+            byte[] cipherBytes = Hex.decode(cipher);
+            mEngine.init(Cipher.DECRYPT_MODE, mKeyPair.getPrivate());
+            byte[] plainBytes = mEngine.doFinal(cipherBytes);
+            return Hex.toHexString(plainBytes);
+        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+            return null;
+        }
+    }
+
+    public SRADecryptionKeySpec getKeySpec() {
+        try {
+            KeyFactory keyFactory = KeyFactory.getInstance("SRA", BouncyCastleProvider.PROVIDER_NAME);
+            return keyFactory.getKeySpec(mKeyPair.getPrivate(), SRADecryptionKeySpec.class);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            return null;
+        }
+
     }
 }

@@ -4,6 +4,7 @@ import de.fhwedel.coinflipping.config.ClientConfig;
 import de.fhwedel.coinflipping.model.*;
 import de.fhwedel.coinflipping.util.CryptoUtil;
 import de.fhwedel.coinflipping.util.StringUtil;
+import org.bouncycastle.jcajce.provider.asymmetric.sra.SRADecryptionKeySpec;
 
 import java.math.BigInteger;
 
@@ -11,6 +12,8 @@ import java.math.BigInteger;
  * Created by tim on 09.12.2015.
  */
 public class ClientProtocolHandler {
+
+    private static CryptoUtil mCryptoUtil;
 
     public static Protocol initiateProtocol() {
         return new Protocol.Builder()
@@ -42,7 +45,7 @@ public class ClientProtocolHandler {
                         response = handleStep3(protocol);
                         break;
                     case 5:
-                        response = error("Not yet implemented!");
+                        response = handleStep5(protocol);
                         break;
                     case 7:
                         response = error("Not yet implemented!");
@@ -76,9 +79,9 @@ public class ClientProtocolHandler {
             Sid sid = Sid.findById(sidId);
 
             try {
-                CryptoUtil cryptoUtil = new CryptoUtil(sid, p, q);
-                String encryptedCoin0 = cryptoUtil.encryptString(ClientConfig.INITIAL_COINS[0]);
-                String encryptedCoin1 = cryptoUtil.encryptString(ClientConfig.INITIAL_COINS[1]);
+                mCryptoUtil = new CryptoUtil(sid, p, q);
+                String encryptedCoin0 = mCryptoUtil.encryptString(ClientConfig.INITIAL_COINS[0]);
+                String encryptedCoin1 = mCryptoUtil.encryptString(ClientConfig.INITIAL_COINS[1]);
 
                 protocol.setProtocolId(4);
                 Payload payload = new Payload.Builder()
@@ -93,6 +96,30 @@ public class ClientProtocolHandler {
             }
         } else {
             return error("Received key negotiation is null or unparsable!");
+        }
+    }
+
+    private static Protocol handleStep5(Protocol protocol) {
+        Payload payload = protocol.getPayload();
+        if (payload != null) {
+            String decryptedCoin = mCryptoUtil.decryptString(payload.getEnChosenCoin());
+            if (decryptedCoin != null) {
+                protocol.setProtocolId(6);
+                payload.setDeChosenCoin(decryptedCoin);
+
+                SRADecryptionKeySpec keySpec = mCryptoUtil.getKeySpec();
+                if (keySpec != null) {
+                    payload.setKeyA(keySpec.getE(), keySpec.getD());
+                } else {
+                    return error("Something went wrong during key extraction.");
+                }
+
+                return protocol;
+            } else {
+                return error("Something went wrong during coin decryption.");
+            }
+        } else {
+            return error("Received payload is null or unparsable!");
         }
     }
 
