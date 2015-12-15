@@ -136,18 +136,26 @@ public class ClientProtocolHandler {
         if (payload != null) {
             List<BigInteger> theirKey = payload.getKeyB();
             PrivateKey theirPrivateKey = mCryptoUtil.getTheirPrivateKey(theirKey.get(0), theirKey.get(1));
-            String coin = mCryptoUtil.decryptString(payload.getDeChosenCoin(), theirPrivateKey);
+            if (theirPrivateKey != null) {
+                String coin = mCryptoUtil.decryptString(payload.getDeChosenCoin(), theirPrivateKey);
 
-            String winner;
-            if (payload.getDesiredCoin().equals(coin)) {
-                winner = "You LOSE!";
+                if (coin != null) {
+                    String winner;
+                    if (payload.getDesiredCoin().equals(coin)) {
+                        winner = "You LOSE!";
+                    } else {
+                        winner = "You WIN!";
+                    }
+
+                    protocol.setStatusMessage("Winning coin is: " + coin + " (server desired coin " + payload.getDesiredCoin() + "). " + winner);
+                    protocol.setProtocolId(8);
+                    return protocol;
+                } else {
+                    return error("Something went wrong when decrypting the coin!");
+                }
             } else {
-                winner = "You WIN!";
+                return error("Something went wrong when retrieving their key!");
             }
-
-            protocol.setStatusMessage("Winning coin is: " + coin + " (server desired coin " + payload.getDesiredCoin() + "). " + winner);
-            protocol.setProtocolId(8);
-            return protocol;
         } else {
             return error("Received payload is null or unparsable!");
         }
