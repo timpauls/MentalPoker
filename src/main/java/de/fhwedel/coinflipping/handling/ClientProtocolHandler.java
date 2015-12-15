@@ -3,10 +3,18 @@ package de.fhwedel.coinflipping.handling;
 import de.fhwedel.coinflipping.config.ClientConfig;
 import de.fhwedel.coinflipping.model.*;
 import de.fhwedel.coinflipping.util.CryptoUtil;
+import de.fhwedel.coinflipping.util.Log;
 import de.fhwedel.coinflipping.util.StringUtil;
 import org.bouncycastle.jcajce.provider.asymmetric.sra.SRADecryptionKeySpec;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 /**
  * Created by tim on 09.12.2015.
@@ -48,7 +56,7 @@ public class ClientProtocolHandler {
                         response = handleStep5(protocol);
                         break;
                     case 7:
-                        response = error("Not yet implemented!");
+                        response = handleStep7(protocol);
                         break;
                     default:
                         response = error("Invalid protocol ID. Client expects odd IDs <= 7 only!");
@@ -102,7 +110,7 @@ public class ClientProtocolHandler {
     private static Protocol handleStep5(Protocol protocol) {
         Payload payload = protocol.getPayload();
         if (payload != null) {
-            String decryptedCoin = mCryptoUtil.decryptString(payload.getEnChosenCoin());
+            String decryptedCoin = mCryptoUtil.decryptStringNoPadding(payload.getEnChosenCoin(), null);
             if (decryptedCoin != null) {
                 protocol.setProtocolId(6);
                 payload.setDeChosenCoin(decryptedCoin);
@@ -118,6 +126,28 @@ public class ClientProtocolHandler {
             } else {
                 return error("Something went wrong during coin decryption.");
             }
+        } else {
+            return error("Received payload is null or unparsable!");
+        }
+    }
+
+    private static Protocol handleStep7(Protocol protocol) {
+        Payload payload = protocol.getPayload();
+        if (payload != null) {
+            List<BigInteger> theirKey = payload.getKeyB();
+            PrivateKey theirPrivateKey = mCryptoUtil.getTheirPrivateKey(theirKey.get(0), theirKey.get(1));
+            String coin = mCryptoUtil.decryptString(payload.getDeChosenCoin(), theirPrivateKey);
+
+            String winner;
+            if (payload.getDesiredCoin().equals(coin)) {
+                winner = "You LOSE!";
+            } else {
+                winner = "You WIN!";
+            }
+
+            protocol.setStatusMessage("Winning coin is: " + coin + " (server desired coin " + payload.getDesiredCoin() + "). " + winner);
+            protocol.setProtocolId(8);
+            return protocol;
         } else {
             return error("Received payload is null or unparsable!");
         }

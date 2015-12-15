@@ -5,6 +5,6 @@ package de.fhwedel.coinflipping.config;
  */
 public class ClientConfig {
     public static final String[] SUPPORTED_PROTOCOL_VERSIONS = { "1.0" };
-    public static final Integer[] SUPPORTED_SIDS = { 0, 1, 2, 3 };
+    public static final Integer[] SUPPORTED_SIDS = {0, 1, 2, 10, 20};
     public static final String[] INITIAL_COINS = { "HEADS", "TAILS" };
 }

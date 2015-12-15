@@ -16,6 +16,8 @@ import java.net.UnknownHostException;
  * Created by tim on 09.12.2015.
  */
 public class CoinFlippingClient {
+//    private static final String TARGET_HOST = "fluffels.de";
+//    private static final int TARGET_PORT = 50000;
     private static final String TARGET_HOST = "54.77.97.90";
     private static final int TARGET_PORT = 4444;
 //    private static final String TARGET_HOST = "localhost";
@@ -80,7 +82,12 @@ public class CoinFlippingClient {
 
             // if handling the response led to an error, it will be clear from our next step message
             if (nextStep.isValid()) {
-                sendAndLog(nextStep);
+                if (nextStep.getProtocolId() == 8) {
+                    Log.info(">>>> " + nextStep.getStatusMessage());
+                    System.exit(0);
+                } else {
+                    sendAndLog(nextStep);
+                }
             } else {
                 Log.error("Error in protocol: " + nextStep.getStatusMessage());
                 Log.info("Closing socket.");
