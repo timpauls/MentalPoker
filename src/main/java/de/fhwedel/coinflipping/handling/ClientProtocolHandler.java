@@ -18,8 +18,15 @@ import java.util.List;
 
 /**
  * Created by tim on 09.12.2015.
+ *
+ * TODO: convert error handling the form:
+ *      if (errorCondition) {
+ *          return error ("Error")
+ *       }
+ *
+ *       non error code
  */
-public class ClientProtocolHandler {
+public class ClientProtocolHandler extends ProtocolHandler {
 
     private static CryptoUtil mCryptoUtil;
 
@@ -159,11 +166,5 @@ public class ClientProtocolHandler {
         } else {
             return error("Received payload is null or unparsable!");
         }
-    }
-
-    private static Protocol error(String errorMessage) {
-        return new Protocol.Builder()
-                .setStatusId(Integer.MIN_VALUE)
-                .setStatusMessage("Error: " + errorMessage).build();
     }
 }
