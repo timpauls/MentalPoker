@@ -15,25 +15,22 @@ import java.net.UnknownHostException;
 /**
  * Created by tim on 09.12.2015.
  */
-public class CoinFlippingClient {
+public class CoinFlippingClient extends Transmitter{
     // Merv
 //    private static final String TARGET_HOST = "fluffels.de";
 //    private static final int TARGET_PORT = 50000;
 
     // Konstantin
-    private static final String TARGET_HOST = "54.77.97.90";
-    private static final int TARGET_PORT = 4444;
+//    private static final String TARGET_HOST = "54.77.97.90";
+//    private static final int TARGET_PORT = 4444;
 
     // Localhost
-//    private static final String TARGET_HOST = "localhost";
-//    private static final int TARGET_PORT = 6882;
+    private static final String TARGET_HOST = "localhost";
+    private static final int TARGET_PORT = 6882;
 
     private static Socket mSocket;
-    private static PrintWriter mOut;
-    private static BufferedReader mIn;
 
     public static void main(String[] args) throws IOException {
-
         try (
             Socket socket = new Socket(TARGET_HOST, TARGET_PORT);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -53,26 +50,6 @@ public class CoinFlippingClient {
             Log.error("Couldn't get I/O for the connection to " + TARGET_PORT);
             System.exit(1);
         }
-    }
-
-    private static void sendAndLogString(String message) {
-        mOut.println(message);
-        Log.info("> " + message);
-    }
-
-    private static void sendAndLog(Protocol protocol) {
-        sendAndLogString(JsonUtil.toJson(protocol));
-    }
-
-    private static String readAndLogString() throws IOException {
-        String message = mIn.readLine();
-        Log.info("< " + message);
-        return message;
-    }
-
-    private static Protocol readAndLog() throws IOException {
-        String message = readAndLogString();
-        return JsonUtil.fromJson(message, Protocol.class);
     }
 
     private static void performProtocol() throws IOException {
@@ -95,6 +72,8 @@ public class CoinFlippingClient {
                     sendAndLog(nextStep);
                 }
             } else {
+                // send error message to server, print info and quit
+                sendAndLog(nextStep);
                 Log.error("Error in protocol: " + nextStep.getStatusMessage());
                 Log.info("Closing socket.");
                 mSocket.close();
