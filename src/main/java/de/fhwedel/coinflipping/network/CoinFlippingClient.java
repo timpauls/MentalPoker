@@ -16,10 +16,15 @@ import java.net.UnknownHostException;
  * Created by tim on 09.12.2015.
  */
 public class CoinFlippingClient {
+    // Merv
 //    private static final String TARGET_HOST = "fluffels.de";
 //    private static final int TARGET_PORT = 50000;
+
+    // Konstantin
     private static final String TARGET_HOST = "54.77.97.90";
     private static final int TARGET_PORT = 4444;
+
+    // Localhost
 //    private static final String TARGET_HOST = "localhost";
 //    private static final int TARGET_PORT = 6882;
 
@@ -82,6 +87,7 @@ public class CoinFlippingClient {
 
             // if handling the response led to an error, it will be clear from our next step message
             if (nextStep.isValid()) {
+                // ProtocolId 8 means the protocol is over, the message contains the winner
                 if (nextStep.getProtocolId() == 8) {
                     Log.info(">>>> " + nextStep.getStatusMessage());
                     System.exit(0);
