@@ -20,11 +20,17 @@ public class CoinFlippingServer extends  Transmitter {
     private static ServerSocket mServerSocket;
 
     public static void main(String[] args) throws IOException {
-        Log.info("Starting server on port " + SERVER_PORT);
+        Integer serverPort;
+        if (args.length == 0) {
+            serverPort = SERVER_PORT;
+        } else {
+            serverPort = Integer.valueOf(args[0]);
+        }
+        Log.info("Starting server on port " + serverPort);
 
         while (true) {
             try (
-                ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+                ServerSocket serverSocket = new ServerSocket(serverPort);
                 Socket clientSocket = serverSocket.accept();
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -37,7 +43,8 @@ public class CoinFlippingServer extends  Transmitter {
 
                 performProtocol();
             } catch (IOException e) {
-                Log.error("Exception caught when trying to listen on port " + SERVER_PORT + " or listening for a connection", e);
+                Log.error("Exception caught when trying to listen on port " + serverPort + " or listening for a connection", e);
+                System.exit(1);
             }
         }
     }

@@ -25,7 +25,7 @@ public class CoinFlippingClient extends Transmitter{
 //    private static final int TARGET_PORT = 4444;
 
     // Localhost
-    private static final String TARGET_HOST = "localhost";
+    private static final String TARGET_HOST = "geistigunbewaff.net";
     private static final int TARGET_PORT = 6882;
 
     private static Socket mSocket;
