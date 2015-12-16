@@ -3,17 +3,11 @@ package de.fhwedel.coinflipping.handling;
 import de.fhwedel.coinflipping.config.ClientConfig;
 import de.fhwedel.coinflipping.model.*;
 import de.fhwedel.coinflipping.util.CryptoUtil;
-import de.fhwedel.coinflipping.util.Log;
 import de.fhwedel.coinflipping.util.StringUtil;
 import org.bouncycastle.jcajce.provider.asymmetric.sra.SRADecryptionKeySpec;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 
 /**
@@ -95,8 +89,8 @@ public class ClientProtocolHandler extends ProtocolHandler {
 
             try {
                 mCryptoUtil = new CryptoUtil(sid, p, q);
-                String encryptedCoin0 = mCryptoUtil.encryptString(ClientConfig.INITIAL_COINS[0]);
-                String encryptedCoin1 = mCryptoUtil.encryptString(ClientConfig.INITIAL_COINS[1]);
+                String encryptedCoin0 = mCryptoUtil.useEngine(true, ClientConfig.INITIAL_COINS[0], null, true, false, true);
+                String encryptedCoin1 = mCryptoUtil.useEngine(true, ClientConfig.INITIAL_COINS[1], null, true, false, true);
 
                 protocol.setProtocolId(4);
                 Payload payload = new Payload.Builder()
@@ -117,7 +111,7 @@ public class ClientProtocolHandler extends ProtocolHandler {
     private static Protocol handleStep5(Protocol protocol) {
         Payload payload = protocol.getPayload();
         if (payload != null) {
-            String decryptedCoin = mCryptoUtil.decryptStringNoPadding(payload.getEnChosenCoin(), null);
+            String decryptedCoin = mCryptoUtil.useEngine(false, payload.getEnChosenCoin(), null, false, true, true);
             if (decryptedCoin != null) {
                 protocol.setProtocolId(6);
                 payload.setDeChosenCoin(decryptedCoin);
@@ -144,7 +138,7 @@ public class ClientProtocolHandler extends ProtocolHandler {
             List<BigInteger> theirKey = payload.getKeyB();
             PrivateKey theirPrivateKey = mCryptoUtil.getTheirPrivateKey(theirKey.get(0), theirKey.get(1));
             if (theirPrivateKey != null) {
-                String coin = mCryptoUtil.decryptString(payload.getDeChosenCoin(), theirPrivateKey);
+                String coin = mCryptoUtil.useEngine(false, payload.getDeChosenCoin(), theirPrivateKey, true, true, false);
 
                 if (coin != null) {
                     String winner;

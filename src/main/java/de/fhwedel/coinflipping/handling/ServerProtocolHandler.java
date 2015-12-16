@@ -5,6 +5,8 @@ import de.fhwedel.coinflipping.model.*;
 import de.fhwedel.coinflipping.util.CryptoUtil;
 import org.bouncycastle.jcajce.provider.asymmetric.sra.SRADecryptionKeySpec;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.*;
 
 /**
@@ -13,7 +15,6 @@ import java.util.*;
 public class ServerProtocolHandler extends ProtocolHandler {
 
     private static CryptoUtil mCryptoUtil;
-    private static CryptoUtil cryptoUtil;
 
     public static Protocol handleProtocolStep(Protocol protocol) {
         Protocol response;
@@ -36,7 +37,7 @@ public class ServerProtocolHandler extends ProtocolHandler {
                         response = handleStep2(protocol);
                         break;
                     case 4:
-                        response = error("Not yet implemented!");
+                        response = handleStep4(protocol);
                         break;
                     case 6:
                         response = error("Not yet implemented!");
@@ -109,8 +110,8 @@ public class ServerProtocolHandler extends ProtocolHandler {
         Sid sid = Sid.findById(sidId);
 
         try {
-            cryptoUtil = new CryptoUtil(sid);
-            SRADecryptionKeySpec keySpec = cryptoUtil.getKeySpec();
+            mCryptoUtil = new CryptoUtil(sid);
+            SRADecryptionKeySpec keySpec = mCryptoUtil.getKeySpec();
             keyNegotiation.setP(keySpec.getP());
             keyNegotiation.setQ(keySpec.getQ());
         } catch (Exception e) {
@@ -119,6 +120,40 @@ public class ServerProtocolHandler extends ProtocolHandler {
 
         protocol.setProtocolId(3);
 
+        return protocol;
+    }
+
+    private static Protocol handleStep4(Protocol protocol) {
+        Payload payload = protocol.getPayload();
+
+        if (payload == null) {
+            return error("Payload is null or not unparsable.");
+        }
+
+        List<String> initialCoin = payload.getInitialCoin();
+        if (initialCoin == null || initialCoin.size() != 2) {
+            return error("InitalCoin is null or does not contain exactly two entries!");
+        }
+
+        try {
+            SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+            int randomPlainIndex = secureRandom.nextInt(2);
+            payload.setDesiredCoin(payload.getInitialCoin().get(randomPlainIndex));
+
+            List<String> encryptedCoin = payload.getEncryptedCoin();
+            if (encryptedCoin == null || encryptedCoin.size() != 2) {
+                return error("EncryptedCoin is null or does not contain exactly two entries!");
+            }
+
+            int randomEncryptedIndex = secureRandom.nextInt(2);
+            String chosenEncryptedCoin = encryptedCoin.get(randomEncryptedIndex);
+            String chosenDoubleEncryptedCoin = mCryptoUtil.useEngine(true, chosenEncryptedCoin, null, false, true, true);
+            payload.setEnChosenCoin(chosenDoubleEncryptedCoin);
+        } catch (NoSuchAlgorithmException e) {
+            return error("Something went wrong when picking a coin.");
+        }
+
+        protocol.setProtocolId(5);
         return protocol;
     }
 }

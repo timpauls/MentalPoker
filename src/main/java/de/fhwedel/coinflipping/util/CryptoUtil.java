@@ -71,61 +71,47 @@ public class CryptoUtil {
         }
     }
 
-    /**
-     * Decrypts the given hex-string with the supplied private key.
-     * @param cipher Hex-encoded ciphertext
-     * @param privateKey SRA private key. If null, the default key is used.
-     * @return Plain text string
-     */
-    public String decryptString(String cipher, PrivateKey privateKey) {
-        if (privateKey == null) {
-            privateKey = mKeyPair.getPrivate();
-        }
-        try {
-            byte[] cipherBytes = Hex.decode(cipher);
-            mEngine.init(Cipher.DECRYPT_MODE, privateKey);
-            byte[] plainBytes = mEngine.doFinal(cipherBytes);
-            return new String(plainBytes);
-        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-            return null;
-        }
-    }
+    public String useEngine(boolean encrypt, String input, Key key, boolean usePadding, boolean isHexInput, boolean isHexOutput) {
+        byte[] inBytes;
+        byte[] outBytes;
+        int cipherMode;
+        Cipher engine;
 
-    /**
-     * Decrypts the given hex-string with the supplied private key, using no padding.
-     * @param cipher Hex-encoded ciphertext
-     * @param privateKey SRA private key. If null, the default key is used.
-     * @return Plain text string
-     */
-    public String decryptStringNoPadding(String cipher, PrivateKey privateKey) {
-        if (privateKey == null) {
-            privateKey = mKeyPair.getPrivate();
+        if (isHexInput) {
+            inBytes = Hex.decode(input);
+        } else {
+            inBytes = input.getBytes();
         }
-        try {
-            byte[] cipherBytes = Hex.decode(cipher);
-            mNoPaddingEngine.init(Cipher.DECRYPT_MODE, privateKey);
-            byte[] plainBytes = mNoPaddingEngine.doFinal(cipherBytes);
-            return Hex.toHexString(plainBytes);
-        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-            return null;
-        }
-    }
 
-    public String encryptString(String plain) {
-        try {
-            mEngine.init(Cipher.ENCRYPT_MODE, mKeyPair.getPublic());
-            byte[] cipherBytes = mEngine.doFinal(plain.getBytes());
-            return Hex.toHexString(cipherBytes);
-        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-            return null;
-        }
-    }
+        if (encrypt) {
+            cipherMode = Cipher.ENCRYPT_MODE;
 
-    public String encryptStringNoPadding(String plain) {
+            if (key == null) {
+                key = mKeyPair.getPublic();
+            }
+        } else {
+            cipherMode = Cipher.DECRYPT_MODE;
+
+            if (key == null) {
+                key = mKeyPair.getPrivate();
+            }
+        }
+
+        if (usePadding) {
+            engine = mEngine;
+        } else {
+            engine = mNoPaddingEngine;
+        }
+
         try {
-            mNoPaddingEngine.init(Cipher.ENCRYPT_MODE, mKeyPair.getPublic());
-            byte[] cipherBytes = mNoPaddingEngine.doFinal(plain.getBytes());
-            return Hex.toHexString(cipherBytes);
+            engine.init(cipherMode, key);
+            outBytes = engine.doFinal(inBytes);
+
+            if (isHexOutput) {
+                return Hex.toHexString(outBytes);
+            } else {
+                return new String(outBytes);
+            }
         } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             return null;
         }
