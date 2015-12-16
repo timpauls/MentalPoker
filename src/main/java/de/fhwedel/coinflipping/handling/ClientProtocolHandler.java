@@ -142,7 +142,7 @@ public class ClientProtocolHandler extends ProtocolHandler {
 
                 if (coin != null) {
                     String winner;
-                    if (payload.getDesiredCoin().equals(coin)) {
+                    if (coin.equals(payload.getDesiredCoin())) {
                         winner = "You LOSE!";
                     } else {
                         winner = "You WIN!";

@@ -49,6 +49,13 @@ public class CoinFlippingServer extends  Transmitter {
             // if handling the response led to an error, it will be clear from our next step message
             if (nextStep.isValid()) {
                 sendAndLog(nextStep);
+
+                // ProtocolId 7 means the protocol is over, process the final result
+                if (nextStep.getProtocolId() == 7) {
+                    Protocol result = ServerProtocolHandler.determineWinner(nextStep);
+                    Log.info(">>>> " + result.getStatusMessage());
+                    System.exit(0);
+                }
             } else {
                 // send error message to client, print info and quit
                 sendAndLog(nextStep);

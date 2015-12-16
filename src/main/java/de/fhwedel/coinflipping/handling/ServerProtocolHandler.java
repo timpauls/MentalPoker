@@ -3,6 +3,7 @@ package de.fhwedel.coinflipping.handling;
 import de.fhwedel.coinflipping.config.ServerConfig;
 import de.fhwedel.coinflipping.model.*;
 import de.fhwedel.coinflipping.util.CryptoUtil;
+import de.fhwedel.coinflipping.util.StringUtil;
 import org.bouncycastle.jcajce.provider.asymmetric.sra.SRADecryptionKeySpec;
 
 import java.security.NoSuchAlgorithmException;
@@ -40,7 +41,7 @@ public class ServerProtocolHandler extends ProtocolHandler {
                         response = handleStep4(protocol);
                         break;
                     case 6:
-                        response = error("Not yet implemented!");
+                        response = handleStep6(protocol);
                         break;
                     default:
                         response = error("Invalid protocol ID. Server expects even IDs <= 6 only!");
@@ -154,6 +155,48 @@ public class ServerProtocolHandler extends ProtocolHandler {
         }
 
         protocol.setProtocolId(5);
+        return protocol;
+    }
+
+    private static Protocol handleStep6(Protocol protocol) {
+        Payload payload = protocol.getPayload();
+        if (payload == null) {
+            return error("Received payload is null or unparsable!");
+        }
+
+        String deChosenCoin = payload.getDeChosenCoin();
+        if (StringUtil.isEmpty(deChosenCoin)) {
+            return error("DeChosenCoin is null or empty!");
+        }
+
+        SRADecryptionKeySpec keySpec = mCryptoUtil.getKeySpec();
+        if (keySpec != null) {
+            payload.setKeyB(keySpec.getE(), keySpec.getD());
+        } else {
+            return error("Something went wrong during key extraction.");
+        }
+
+        protocol.setProtocolId(7);
+        return protocol;
+    }
+
+    public static Protocol determineWinner(Protocol protocol) {
+        Payload payload = protocol.getPayload();
+        String plainCoin = mCryptoUtil.useEngine(false, payload.getDeChosenCoin(), null, true, true, false);
+        if (plainCoin == null) {
+            return error("Something went wrong during coin decryption.");
+        }
+
+        String winner;
+        if (plainCoin.equals(payload.getDesiredCoin())) {
+            winner = "Server WINS!";
+        } else {
+            winner = "Server LOSES!";
+        }
+
+        protocol.setStatusMessage("Winning coin is: " + plainCoin + " (server desired coin " + payload.getDesiredCoin() + "). " + winner);
+        protocol.setProtocolId(8);
+
         return protocol;
     }
 }
