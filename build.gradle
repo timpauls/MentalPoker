@@ -10,6 +10,18 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Coin flipping Server',
+                'Implementation-Version': version,
+                'Main-Class': 'de.fhwedel.coinflipping.network.CoinFlippingServer'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 dependencies {
     compile 'com.github.timpauls:bc-java:sra_1.0.5'
     compile 'com.google.code.gson:gson:2.5'
