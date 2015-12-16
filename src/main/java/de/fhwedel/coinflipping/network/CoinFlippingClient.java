@@ -67,7 +67,7 @@ public class CoinFlippingClient extends Transmitter{
                 // ProtocolId 8 means the protocol is over, the message contains the winner
                 if (nextStep.getProtocolId() == 8) {
                     Log.info(">>>> " + nextStep.getStatusMessage());
-                    System.exit(0);
+                    break;
                 } else {
                     sendAndLog(nextStep);
                 }

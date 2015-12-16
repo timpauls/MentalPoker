@@ -54,7 +54,7 @@ public class CoinFlippingServer extends  Transmitter {
                 if (nextStep.getProtocolId() == 7) {
                     Protocol result = ServerProtocolHandler.determineWinner(nextStep);
                     Log.info(">>>> " + result.getStatusMessage());
-                    System.exit(0);
+                    break;
                 }
             } else {
                 // send error message to client, print info and quit
