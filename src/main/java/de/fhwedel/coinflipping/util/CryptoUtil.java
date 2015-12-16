@@ -24,16 +24,37 @@ public class CryptoUtil {
     private Cipher mEngine;
     private Cipher mNoPaddingEngine;
 
+
+    public CryptoUtil(Sid sid) {
+        init(sid);
+        mKeyPair = createNewKeyPair();
+    }
+
     public CryptoUtil(Sid sid, BigInteger p, BigInteger q) {
+        init(sid);
+        mKeyPair = createKeyPair(p, q);
+    }
+
+    private void init(Sid sid) {
         this.mSid = sid;
         Security.addProvider(new BouncyCastleProvider());
 
         try {
             mEngine = Cipher.getInstance("SRA/NONE/OAEPWITH" + mSid.getAlgorithm() + "ANDMGF1PADDING", BouncyCastleProvider.PROVIDER_NAME);
             mNoPaddingEngine = Cipher.getInstance("SRA", BouncyCastleProvider.PROVIDER_NAME);
-            mKeyPair = createKeyPair(p, q);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException e) {
             throw new IllegalArgumentException("Could not create CryptoUtil! Invalid params. ", e);
+        }
+    }
+
+    private KeyPair createNewKeyPair() {
+        try {
+            KeyPairGenerator generator = KeyPairGenerator.getInstance("SRA", BouncyCastleProvider.PROVIDER_NAME);
+            generator.initialize(mSid.getModulusSize());
+            return generator.generateKeyPair();
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            Log.error("Error creating key pair!");
+            return null;
         }
     }
 

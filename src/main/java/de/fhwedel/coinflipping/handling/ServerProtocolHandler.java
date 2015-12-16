@@ -1,10 +1,9 @@
 package de.fhwedel.coinflipping.handling;
 
 import de.fhwedel.coinflipping.config.ServerConfig;
-import de.fhwedel.coinflipping.model.AvailableVersion;
-import de.fhwedel.coinflipping.model.Protocol;
-import de.fhwedel.coinflipping.model.ProtocolNegotiation;
+import de.fhwedel.coinflipping.model.*;
 import de.fhwedel.coinflipping.util.CryptoUtil;
+import org.bouncycastle.jcajce.provider.asymmetric.sra.SRADecryptionKeySpec;
 
 import java.util.*;
 
@@ -14,6 +13,7 @@ import java.util.*;
 public class ServerProtocolHandler extends ProtocolHandler {
 
     private static CryptoUtil mCryptoUtil;
+    private static CryptoUtil cryptoUtil;
 
     public static Protocol handleProtocolStep(Protocol protocol) {
         Protocol response;
@@ -33,7 +33,7 @@ public class ServerProtocolHandler extends ProtocolHandler {
                         response = handleStep0(protocol);
                         break;
                     case 2:
-                        response = error("Not yet implemented!");
+                        response = handleStep2(protocol);
                         break;
                     case 4:
                         response = error("Not yet implemented!");
@@ -80,6 +80,44 @@ public class ServerProtocolHandler extends ProtocolHandler {
         availableVersions.add(new AvailableVersion(ServerConfig.SUPPORTED_PROTOCOL_VERSIONS));
         protocolNegotiation.setVersion(versions.get(versions.size()-1));
         protocol.setProtocolId(1);
+
+        return protocol;
+    }
+
+    private static Protocol handleStep2(Protocol protocol) {
+        KeyNegotiation keyNegotiation = protocol.getKeyNegotiation();
+
+        if (keyNegotiation == null) {
+            return error("Received keyNegotiation is null or not parsable!");
+        }
+
+        List<AvailableSids> availableSids = keyNegotiation.getAvailableSids();
+        if (availableSids == null || availableSids.size() == 0) {
+            return error("Received availableSids is null or empty!");
+        }
+
+        ArrayList<Integer> sids = new ArrayList<>();
+        sids.addAll(Arrays.asList(ServerConfig.SUPPORTED_SIDS));
+        sids.retainAll(availableSids.get(0).getSids());
+
+        Collections.sort(sids);
+
+        availableSids.add(new AvailableSids(ServerConfig.SUPPORTED_SIDS));
+        Integer sidId = sids.get(sids.size() - 1);
+        keyNegotiation.setSid(sidId);
+
+        Sid sid = Sid.findById(sidId);
+
+        try {
+            cryptoUtil = new CryptoUtil(sid);
+            SRADecryptionKeySpec keySpec = cryptoUtil.getKeySpec();
+            keyNegotiation.setP(keySpec.getP());
+            keyNegotiation.setQ(keySpec.getQ());
+        } catch (Exception e) {
+            return error("Something went wrong during key generation!");
+        }
+
+        protocol.setProtocolId(3);
 
         return protocol;
     }
