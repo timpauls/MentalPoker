@@ -11,3 +11,5 @@ bin/
 build/
 .settings/
 .idea/
+
+deploy.sh
