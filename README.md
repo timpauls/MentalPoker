@@ -4,9 +4,11 @@ FH Wedel IT-Security Project WS15/16
 ### Client/Server
 The package de.fhwedel.coinflipping cointains classes needed for the network based coin flipping.
 The client is implemented in de.fhwedel.coinflipping.network.CoinFlippingClient. It currently contains a hard coded URL and port of a server that will be connected to when running its main method.
+
 The server is implemented in de.fhwedel.coinflipping.network.CoinFlippingServer. It will launch when running its main method, using either a port supplied as the first argument to the main method, or if no port is given, the default port 6882.
 
 `./gradlew fatJar` will generate a JAR of the server, containing all dependencies.
+
 Sample usage:
 `java -jar MentalPoker-all-1.0-SNAPSHOT.jar 6882`
 
