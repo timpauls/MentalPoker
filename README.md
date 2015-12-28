@@ -7,10 +7,15 @@ The client is implemented in de.fhwedel.coinflipping.network.CoinFlippingClient.
 
 The server is implemented in de.fhwedel.coinflipping.network.CoinFlippingServer. It will launch when running its main method, using either a port supplied as the first argument to the main method, or if no port is given, the default port 6882.
 
+UPDATE 2015/12/28: The server and client now only support TLS connections! The JAR now also contains the client. The usage has changed.
+
 `./gradlew fatJar` will generate a JAR of the server, containing all dependencies.
 
-Sample usage:
-`java -jar MentalPoker-all-1.0-SNAPSHOT.jar 6882`
+Sample usage for server:
+`java -jar MentalPoker-all-1.0-SNAPSHOT.jar --server 6882`
+
+Sample usage for client:
+`java -jar MentalPoker-all-1.0-SNAPSHOT.jar --client localhost 6882`
 
 An instance of the server is hosted at `87.106.18.90:6882`.
 
