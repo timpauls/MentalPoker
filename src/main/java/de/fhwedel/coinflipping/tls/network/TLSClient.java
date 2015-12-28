@@ -1,10 +1,13 @@
 package de.fhwedel.coinflipping.tls.network;
 
+import de.fhwedel.coinflipping.util.Log;
+
 import java.io.BufferedOutputStream;
 
 import java.io.IOException;
 
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.security.PublicKey;
 
 import javax.net.ssl.HandshakeCompletedEvent;
@@ -74,8 +77,12 @@ public class TLSClient {
 			waitingForCommunication.start();
 
 		} catch (IOException e) {
-			// this.log("Error: Unable to connect (IOException)");
+			Log.error("Error: Unable to connect (IOException)", e);
 		}
+	}
+
+	public InetAddress getInetAddress() {
+		return this.tlsSocket.getInetAddress();
 	}
 
 	/**

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -192,6 +193,14 @@ public class TLSNetwork {
 			return this.client.getOtherPubKey();
 		} else if (this.server != null) {
 			return this.server.getOtherPubKey();
+		} else {
+			return null;
+		}
+	}
+
+	public InetAddress getInetAddress() {
+		if (this.client != null) {
+			return this.client.getInetAddress();
 		} else {
 			return null;
 		}

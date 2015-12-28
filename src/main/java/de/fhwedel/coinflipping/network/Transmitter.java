@@ -1,38 +1,36 @@
 package de.fhwedel.coinflipping.network;
 
 import de.fhwedel.coinflipping.model.Protocol;
+import de.fhwedel.coinflipping.tls.network.TLSNetwork;
+import de.fhwedel.coinflipping.tls.network.TLSNetworkGame;
 import de.fhwedel.coinflipping.util.JsonUtil;
 import de.fhwedel.coinflipping.util.Log;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 /**
  * Created by tim on 15.12.15.
  */
-public abstract class Transmitter {
-    protected static PrintWriter mOut;
-    protected static BufferedReader mIn;
+public abstract class Transmitter implements TLSNetworkGame {
+    protected TLSNetwork tlsNetwork;
 
-    protected static void sendAndLogString(String message) {
-        mOut.println(message);
+    protected void sendAndLogString(String message) {
+        tlsNetwork.send(message);
         Log.info("> " + message);
     }
 
-    protected static void sendAndLog(Protocol protocol) {
+    protected void sendAndLog(Protocol protocol) {
         sendAndLogString(JsonUtil.toJson(protocol));
     }
 
-    protected static String readAndLogString() throws IOException {
-        String message = mIn.readLine();
+    @Override
+    public void receivedMessage(String message) {
         Log.info("< " + message);
-        return message;
+        receivedProtocolStep(JsonUtil.fromJson(message, Protocol.class));
     }
 
-    protected static Protocol readAndLog() throws IOException {
-        String message = readAndLogString();
-        return JsonUtil.fromJson(message, Protocol.class);
+    protected void finish() {
+        tlsNetwork.stop();
+        Log.info("Protocol has finished.");
     }
+
+    abstract void receivedProtocolStep(Protocol protocol);
 }
