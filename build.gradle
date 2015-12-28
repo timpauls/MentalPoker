@@ -13,9 +13,9 @@ repositories {
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
     manifest {
-        attributes 'Implementation-Title': 'Coin flipping Server',
+        attributes 'Implementation-Title': 'Coin flipping Server/Client',
                 'Implementation-Version': version,
-                'Main-Class': 'de.fhwedel.coinflipping.network.CoinFlippingServer'
+                'Main-Class': 'de.fhwedel.coinflipping.Main'
     }
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
