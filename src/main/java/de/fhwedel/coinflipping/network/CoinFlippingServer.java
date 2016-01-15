@@ -30,7 +30,7 @@ public class CoinFlippingServer extends Transmitter {
                 serverPort,
                 "mentalpoker_root.public", "secretsauce",
                 "mentalpoker_tim.private", "secretsauce",
-                OwnTrustManager.NEVER,
+                OwnTrustManager.ALWAYS,
                 null,
                 true);
 
