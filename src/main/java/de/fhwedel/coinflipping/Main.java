@@ -20,9 +20,7 @@ public class Main {
         }
 
         if (launchMode != null) {
-            if (launchMode.equals("--gencert")) {
-                generateCerts();
-            } else if (launchMode.equals("--server")) {
+            if (launchMode.equals("--server")) {
                 Integer port = null;
                 if (args.length > 1) {
                     port = Integer.valueOf(args[1]);
@@ -41,29 +39,6 @@ public class Main {
         } else {
             Log.error("Launched without parameters! Quitting.");
             System.exit(1);
-        }
-    }
-
-    private static void generateCerts() {
-        X509CertGenerator gen = new X509CertGenerator(new BigInteger("5"));
-        try {
-            gen.createRoot(
-                    new X500Name("C=GERMANY,L=Wedel,O=FH Wedel, OU=ITS Project WS1516, CN=Mental Poker Root"),
-                    2048,
-                    "mentalpoker_root",
-                    "secretsauce",
-                    "rootalias",
-                    true);
-
-            gen.createCert(
-                    2048,
-                    "mentalpoker_tim",
-                    "secretsauce",
-                    "certalias",
-                    new X500Name("C=Germany, L=Wedel, O=FH Wedel, OU=ITS Project WS1516, CN=Tim"),
-                    false);
-        } catch (Exception e) {
-            Log.error("Error in certificate generation!", e);
         }
     }
 
