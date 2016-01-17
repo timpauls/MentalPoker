@@ -38,8 +38,8 @@ public class CoinFlippingClient extends Transmitter {
         tlsNetwork.connect(
                 mServer,
                 mPort,
-                "mentalpoker_root.public", "secretsauce",
-                "mentalpoker_tim.private", "secretsauce",
+                "ssl-certs/root", "fhwedel",
+                "ssl-certs/client", "fhwedel",
                 OwnTrustManager.ALWAYS,
                 null,
                 true);

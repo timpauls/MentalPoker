@@ -28,8 +28,8 @@ public class CoinFlippingServer extends Transmitter {
         }
         tlsNetwork.start(
                 serverPort,
-                "mentalpoker_root.public", "secretsauce",
-                "mentalpoker_tim.private", "secretsauce",
+                "ssl-certs/root", "fhwedel",
+                "ssl-certs/server", "fhwedel",
                 OwnTrustManager.ALWAYS,
                 null,
                 true);
