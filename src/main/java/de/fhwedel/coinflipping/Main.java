@@ -23,21 +23,38 @@ public class Main {
             }
 
             if (launchMode != null) {
-                if (launchMode.equals("--server")) {
-                    Integer port = null;
-                    if (args.length > 1) {
-                        port = Integer.valueOf(args[1]);
-                    }
-                    launchServer(port);
-                } else if (launchMode.equals("--client")) {
-                    if (args.length < 3) {
-                        Log.error("Insufficient arguments supplied. Usage: [jar] --client SERVER PORT");
+                switch (launchMode) {
+                    case "--server":
+                        Integer port = null;
+                        if (args.length > 1) {
+                            port = Integer.valueOf(args[1]);
+
+                            if (args.length > 2 && args[2].equals("--log")) {
+                                Log.IS_DEBUG = true;
+                            }
+                            launchServer(port);
+                        }
+                        break;
+                    case "--client":
+                        if (args.length < 3) {
+                            Log.error("Insufficient arguments supplied. Usage: [jar] --client SERVER PORT");
+                            System.exit(1);
+                        }
+                        if (args.length > 3 && args[3].equals("--log")) {
+                            Log.IS_DEBUG = true;
+                        }
+
+                        launchClient(args[1], Integer.valueOf(args[2]));
+                        break;
+                    case "--interactive":
+                        if (args.length > 1 && args[1].equals("--log")) {
+                            Log.IS_DEBUG = true;
+                        }
+                        new UIStateMachine().mainLoop();
+                        break;
+                    default:
+                        Log.error("Launched with illegal parameter! Quitting.");
                         System.exit(1);
-                    }
-                    launchClient(args[1], Integer.valueOf(args[2]));
-                } else {
-                    Log.error("Launched with illegal parameter! Quitting.");
-                    System.exit(1);
                 }
             } else {
                 Log.error("Launched without parameters! Quitting.");
