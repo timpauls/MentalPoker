@@ -11,6 +11,7 @@ import de.fhwedel.coinflipping.util.Log;
  */
 public abstract class Transmitter implements TLSNetworkGame {
     protected TLSNetwork tlsNetwork;
+    private MessageListener mMessageListener;
 
     protected void sendAndLogString(String message) {
         tlsNetwork.send(message);
@@ -32,5 +33,19 @@ public abstract class Transmitter implements TLSNetworkGame {
         Log.info("Protocol has finished.");
     }
 
+    public void setMessageListener(MessageListener listener) {
+        mMessageListener = listener;
+    }
+
+    public void messageListeners(String message) {
+        if (mMessageListener != null) {
+            mMessageListener.onNewMessage(message);
+        }
+    }
+
     abstract void receivedProtocolStep(Protocol protocol);
+
+    public interface MessageListener {
+        void onNewMessage (String message);
+    }
 }

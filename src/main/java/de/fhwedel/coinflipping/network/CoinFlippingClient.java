@@ -50,13 +50,19 @@ public class CoinFlippingClient extends Transmitter {
         Protocol protocol = ClientProtocolHandler.initiateProtocol();
         sendAndLog(protocol);
 
+        messageListeners(protocol);
+
         // the rest happens in receivedProtocolStep when the mServer responds
     }
 
     @Override
     void receivedProtocolStep(Protocol protocol) {
+        messageListeners(protocol);
+
         // we received a response and handle it
         Protocol nextStep = ClientProtocolHandler.handleProtocolStep(protocol);
+
+        messageListeners(nextStep);
 
         // if handling the response led to an error, it will be clear from our next step message
         if (nextStep.isValid()) {
@@ -74,4 +80,41 @@ public class CoinFlippingClient extends Transmitter {
             finish();
         }
     }
+
+    private void messageListeners(Protocol protocol) {
+        String message = null;
+        switch (protocol.getProtocolId()) {
+            case 0:
+                message = "Initializing protocol negotiation...";
+                break;
+            case 1:
+                message = "Protocol version is " + protocol.getProtocolNegotiation().getVersion() + ".";
+                break;
+            case 2:
+                message = "Initializing key negotiation...";
+                break;
+            case 3:
+                message = "Key negotiation complete.";
+                break;
+            case 4:
+                message = "Sending encrypted coins...";
+                break;
+            case 5:
+                message = "Received chosen coin.";
+                break;
+            case 6:
+                message = "Sending decrypted coin and key...";
+                break;
+            case 7:
+                message = "Received their key.";
+                break;
+            case 8:
+                message = protocol.getStatusMessage();
+                break;
+        }
+        if (message != null) {
+            messageListeners(message);
+        }
+    }
+
 }
