@@ -2,10 +2,16 @@ package de.fhwedel.coinflipping.ui.states;
 
 import de.fhwedel.coinflipping.network.CoinFlippingClient;
 import de.fhwedel.coinflipping.network.Transmitter;
+import gr.planetz.impl.HttpPingingService;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by tim on 18.01.16.
@@ -19,7 +25,30 @@ public class ServerSelectionState extends UIMultipleSelectionState implements Tr
 
     @Override
     protected List<String> getOptions() {
-        return Arrays.asList("localhost:6882", "geistigunbewaff.net:6882", "fluffels.de:50000", "Enter an IP address and port");
+        try {
+            List<String> options = new ArrayList<>();
+            options.add("Localhost - localhost:6882");
+
+            HttpPingingService pingingService = new HttpPingingService("https://52.35.76.130:8443/broker/1.0/players", "", "", "ssl-certs/tipa_keystore.jks", "secret");
+            Map<String, String> players = pingingService.getPlayersDirectlyOverHttpGetRequest();
+            for (String name : players.keySet()) {
+                options.add(name + " - " + players.get(name));
+            }
+
+            options.add("Enter an IP address and port");
+            return options;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -28,7 +57,7 @@ public class ServerSelectionState extends UIMultipleSelectionState implements Tr
             return new IPEntryState();
         }
 
-        String serverAndPort = getOptions().get(index);
+        String serverAndPort = getOptions().get(index).split(" - ")[1];
         String[] split = serverAndPort.split(":");
         try {
             CoinFlippingClient coinFlippingClient = new CoinFlippingClient(split[0], Integer.valueOf(split[1]));
