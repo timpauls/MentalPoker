@@ -97,7 +97,7 @@ public class CoinFlippingClient extends Transmitter {
                 message = "Key negotiation complete.";
                 break;
             case 4:
-                message = "Sending encrypted coins...";
+                message = "Sending encrypted coins " + protocol.getPayload().getInitialCoin().toString() + "...";
                 break;
             case 5:
                 message = "Received chosen coin.";

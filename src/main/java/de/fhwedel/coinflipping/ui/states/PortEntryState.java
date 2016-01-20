@@ -1,12 +1,13 @@
 package de.fhwedel.coinflipping.ui.states;
 
 import de.fhwedel.coinflipping.network.CoinFlippingServer;
+import de.fhwedel.coinflipping.network.Transmitter;
 import de.fhwedel.coinflipping.util.StringUtil;
 
 /**
  * Created by tim on 18.01.16.
  */
-public class PortEntryState extends UITextEntryState {
+public class PortEntryState extends UITextEntryState implements Transmitter.MessageListener {
 
     private static final int DEFAULT_PORT = 6882;
 
@@ -28,7 +29,14 @@ public class PortEntryState extends UITextEntryState {
             }
         }
 
-        new CoinFlippingServer(port).start();
+        CoinFlippingServer coinFlippingServer = new CoinFlippingServer(port);
+        coinFlippingServer.setMessageListener(this);
+        coinFlippingServer.start();
         return new ExitState();
+    }
+
+    @Override
+    public void onNewMessage(String message) {
+        System.out.println(message);
     }
 }

@@ -35,11 +35,16 @@ public class CoinFlippingServer extends Transmitter {
                 true);
 
         Log.info("Starting secure server on port: " + serverPort);
+        messageListeners("Starting secure server on port: " + serverPort);
     }
 
     @Override
     void receivedProtocolStep(Protocol protocol) {
+        messageListeners(protocol);
+
         Protocol nextStep = ServerProtocolHandler.handleProtocolStep(protocol);
+
+        messageListeners(nextStep);
 
         // if handling the response led to an error, it will be clear from our next step message
         if (nextStep.isValid()) {
@@ -48,6 +53,7 @@ public class CoinFlippingServer extends Transmitter {
             // ProtocolId 7 means the protocol is over, process the final result
             if (nextStep.getProtocolId() == 7) {
                 Protocol result = ServerProtocolHandler.determineWinner(nextStep);
+                messageListeners(result);
                 Log.info(">>>> " + result.getStatusMessage());
                 finish();
                 // restart
@@ -60,6 +66,42 @@ public class CoinFlippingServer extends Transmitter {
             finish();
             // restart
             start();
+        }
+    }
+
+    private void messageListeners(Protocol protocol) {
+        String message = null;
+        switch (protocol.getProtocolId()) {
+            case 0:
+                message = "Received protocol initialization.";
+                break;
+            case 1:
+                message = "Protocol version is " + protocol.getProtocolNegotiation().getVersion() + ".";
+                break;
+            case 2:
+                message = "Received key negotiation initialization";
+                break;
+            case 3:
+                message = "Key negotiation complete.";
+                break;
+            case 4:
+                message = "Received coins "+ protocol.getPayload().getInitialCoin().toString();
+                break;
+            case 5:
+                message = "Chose coin " + protocol.getPayload().getDesiredCoin();
+                break;
+            case 6:
+                message = "Receiving client key";
+                break;
+            case 7:
+                message = "Sending key to client.";
+                break;
+            case 8:
+                message = protocol.getStatusMessage();
+                break;
+        }
+        if (message != null) {
+            messageListeners(message);
         }
     }
 }
