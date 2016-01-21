@@ -17,10 +17,7 @@ public class Main {
             new UIStateMachine().mainLoop();
         } else {
             // else start in normal mode
-            String launchMode = null;
-            if (args.length > 0) {
-                launchMode = args[0];
-            }
+            String launchMode = args[0];
 
             if (launchMode != null) {
                 switch (launchMode) {
@@ -53,7 +50,7 @@ public class Main {
                         new UIStateMachine().mainLoop();
                         break;
                     default:
-                        Log.error("Launched with illegal parameter! Quitting.");
+                        System.out.println(usage());
                         System.exit(1);
                 }
             } else {
@@ -61,6 +58,17 @@ public class Main {
                 System.exit(1);
             }
         }
+    }
+
+    private static String usage() {
+        return "Usage:\n" +
+                "  java -jar [filename.jar] [parameters]\n\n" +
+
+                "  Parameters:\n\n" +
+
+                "  Interactive mode:\tno parameters OR --interactive [--log]\n" +
+                "  Server mode:\t\t--server PORT [--log]\n" +
+                "  Client mode:\t\t--client HOST POST [--log]";
     }
 
     private static void launchClient(String server, Integer port) {

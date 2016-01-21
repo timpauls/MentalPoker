@@ -1,34 +1,45 @@
 # MentalPoker
 FH Wedel IT-Security Project WS15/16
 
-### Client/Server
-The package de.fhwedel.coinflipping cointains classes needed for the network based coin flipping.
-The client is implemented in de.fhwedel.coinflipping.network.CoinFlippingClient. It currently contains a hard coded URL and port of a server that will be connected to when running its main method.
+Secure coin flipping server/client based on the SRA algorithm.
 
-The server is implemented in de.fhwedel.coinflipping.network.CoinFlippingServer. It will launch when running its main method, using either a port supplied as the first argument to the main method, or if no port is given, the default port 6882.
+### Prerequisites
+OpenJDK 8 is required to run this software (Oracle JDK will not work).
 
-UPDATE 2015/12/28: The server and client now only support TLS connections! The JAR now also contains the client. The usage has changed.
+The program relies on the used certificate files to be present in the folder `ssl-certs/` relative to the execution path.
 
-`./gradlew fatJar` will generate a JAR of the server, containing all dependencies.
+### Building
+`./gradlew fatJar` will generate a JAR containing the server and client required to play, both in interactive and
+automatic mode. The JAR contains all required dependencies.
 
-Sample usage for server:
+### Usage
+#### Interactive mode
+To enter interactive mode, simply launch the jar without any parameters:
+`java -jar MentalPoker-all-1.0-SNAPSHOT.jar`
+
+Alternatively, you can pass the parameter `--interactive`, which also allows for the additional parameter `--log` to enable
+display of log messages:
+`java -jar MentalPoker-all-1.0-SNAPSHOT.jar --interactive --log`
+
+In interactive mode, a multiple-choice-style menu guides you through using the program either as a server, or as a client
+for the coin flipping protocol.
+
+In server mode you must specify a port for the server to listen on. The server remains up until its process is actively killed.
+
+In client mode you can choose to play against one of a list of online servers, localhost on the default port, or you can 
+enter an IP and port of a server that is not currently listed. The client terminates after each played game.
+
+#### Automatic mode
+##### Server
+`java -jar MentalPoker-all-1.0-SNAPSHOT.jar --server [port]`
+
+Example:
 `java -jar MentalPoker-all-1.0-SNAPSHOT.jar --server 6882`
 
-Sample usage for client:
+##### Client
+`java -jar MentalPoker-all-1.0-SNAPSHOT.jar --client [host] [port]`
+
+Example:
 `java -jar MentalPoker-all-1.0-SNAPSHOT.jar --client localhost 6882`
 
-An instance of the server is hosted at `87.106.18.90:6882`.
-
-### Dependencies
-MentalPoker relies on the Bouncy Castle security library, specifically on [my fork of it](https://github.com/timpauls/bc-java).
-
-### gradle
-This project uses gradle as a build tool and can be built by running `./gradlew [task]`.
-The first execution will download gradle if necessary. All dependencies will automatically be resolved.
-
-### Gradle tasks
-#### Testing
-Tests are executed by running
-```
-./gradlew test
-```
+Both, client and server, may be launched with the optional last parameter `--log` to enable display of log messages.
