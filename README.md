@@ -24,20 +24,21 @@ display of log messages:
 In interactive mode, a multiple-choice-style menu guides you through using the program either as a server, or as a client
 for the coin flipping protocol.
 
-In server mode you must specify a port for the server to listen on. The server remains up until its process is actively killed.
+In server mode you must specify the server's name and a port for the server to listen on. The server remains up until
+its process is actively killed.
 
 In client mode you can choose to play against one of a list of online servers, localhost on the default port, or you can 
 enter an IP and port of a server that is not currently listed. The client terminates after each played game.
 
 #### Automatic mode
 ##### Server
-`java -jar MentalPoker-all-1.0-SNAPSHOT.jar --server [port]`
+`java -jar MentalPoker-all-1.0-SNAPSHOT.jar --server NAME PORT`
 
 Example:
-`java -jar MentalPoker-all-1.0-SNAPSHOT.jar --server 6882`
+`java -jar MentalPoker-all-1.0-SNAPSHOT.jar --server "My coin flipping server" 6882`
 
 ##### Client
-`java -jar MentalPoker-all-1.0-SNAPSHOT.jar --client [host] [port]`
+`java -jar MentalPoker-all-1.0-SNAPSHOT.jar --client HOST PORT`
 
 Example:
 `java -jar MentalPoker-all-1.0-SNAPSHOT.jar --client localhost 6882`
