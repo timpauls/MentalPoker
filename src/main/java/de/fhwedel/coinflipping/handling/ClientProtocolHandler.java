@@ -3,8 +3,10 @@ package de.fhwedel.coinflipping.handling;
 import de.fhwedel.coinflipping.config.ClientConfig;
 import de.fhwedel.coinflipping.model.*;
 import de.fhwedel.coinflipping.util.CryptoUtil;
+import de.fhwedel.coinflipping.util.SignatureUtil;
 import de.fhwedel.coinflipping.util.StringUtil;
 import org.bouncycastle.jcajce.provider.asymmetric.sra.SRADecryptionKeySpec;
+import org.bouncycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.security.PrivateKey;
@@ -121,6 +123,24 @@ public class ClientProtocolHandler extends ProtocolHandler {
                     payload.setKeyA(keySpec.getE(), keySpec.getD());
                 } else {
                     return error("Something went wrong during key extraction.");
+                }
+
+                String toBeSigned =     payload.getDesiredCoin()
+                                    +   payload.getEnChosenCoin()
+                                    +   Hex.toHexString(keySpec.getE().toByteArray())
+                                    +   Hex.toHexString(keySpec.getD().toByteArray());
+
+                PrivateKey privateKey = SignatureUtil.readPrivateKeyFromFile("ssl-certs/client", "fhwedel");
+                if (privateKey != null) {
+                    byte[] sign = SignatureUtil.sign(toBeSigned, privateKey);
+                    if (sign != null) {
+                        String signature = Hex.toHexString(sign);
+                        payload.setSignatureA(signature);
+                    } else {
+                        return error("Something went wrong during signing.");
+                    }
+                } else {
+                    return error("Something went wrong when trying to read private key from file.");
                 }
 
                 return protocol;
