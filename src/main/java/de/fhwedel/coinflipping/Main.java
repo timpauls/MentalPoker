@@ -22,19 +22,19 @@ public class Main {
             if (launchMode != null) {
                 switch (launchMode) {
                     case "--server":
-                        Integer port = null;
-                        if (args.length > 1) {
-                            port = Integer.valueOf(args[1]);
-
-                            if (args.length > 2 && args[2].equals("--log")) {
-                                Log.IS_DEBUG = true;
-                            }
-                            launchServer(port);
+                        if (args.length < 3) {
+                            Log.error("Insufficient arguments supplied. Usage: [jar] --server NAME PORT [--log]");
+                            System.exit(1);
                         }
+                        if (args.length > 3 && args[3].equals("--log")) {
+                            Log.IS_DEBUG = true;
+                        }
+
+                        launchServer(args[1], Integer.valueOf(args[2]));
                         break;
                     case "--client":
                         if (args.length < 3) {
-                            Log.error("Insufficient arguments supplied. Usage: [jar] --client SERVER PORT");
+                            Log.error("Insufficient arguments supplied. Usage: [jar] --client HOST PORT [--log]");
                             System.exit(1);
                         }
                         if (args.length > 3 && args[3].equals("--log")) {
@@ -67,8 +67,8 @@ public class Main {
                 "  Parameters:\n\n" +
 
                 "  Interactive mode:\tno parameters OR --interactive [--log]\n" +
-                "  Server mode:\t\t--server PORT [--log]\n" +
-                "  Client mode:\t\t--client HOST POST [--log]";
+                "  Server mode:\t\t--server NAME PORT [--log]\n" +
+                "  Client mode:\t\t--client HOST PORT [--log]";
     }
 
     private static void launchClient(String server, Integer port) {
@@ -80,8 +80,8 @@ public class Main {
         }
     }
 
-    private static void launchServer(Integer port) {
-        CoinFlippingServer coinFlippingServer = new CoinFlippingServer(port);
+    private static void launchServer(String name, Integer port) {
+        CoinFlippingServer coinFlippingServer = new CoinFlippingServer(name, port);
         coinFlippingServer.start();
     }
 }

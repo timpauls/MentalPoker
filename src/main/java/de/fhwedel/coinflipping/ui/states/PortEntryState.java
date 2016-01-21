@@ -10,6 +10,11 @@ import de.fhwedel.coinflipping.util.StringUtil;
 public class PortEntryState extends UITextEntryState implements Transmitter.MessageListener {
 
     private static final int DEFAULT_PORT = 6882;
+    private String mServerName;
+
+    public PortEntryState(String serverName) {
+        this.mServerName = serverName;
+    }
 
     @Override
     protected String getPrompt() {
@@ -25,11 +30,11 @@ public class PortEntryState extends UITextEntryState implements Transmitter.Mess
             try {
                 port = Integer.valueOf(input);
             } catch (NumberFormatException e) {
-                return new ErrorState();
+                return new PortEntryState(mServerName);
             }
         }
 
-        CoinFlippingServer coinFlippingServer = new CoinFlippingServer(port);
+        CoinFlippingServer coinFlippingServer = new CoinFlippingServer(mServerName, port);
         coinFlippingServer.setMessageListener(this);
         coinFlippingServer.start();
         return new ExitState();

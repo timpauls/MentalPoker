@@ -5,7 +5,9 @@ import de.fhwedel.coinflipping.model.Protocol;
 import de.fhwedel.coinflipping.tls.network.OwnTrustManager;
 import de.fhwedel.coinflipping.tls.network.TLSNetwork;
 import de.fhwedel.coinflipping.util.Log;
+import de.fhwedel.coinflipping.util.StringUtil;
 import gr.planetz.impl.HttpPingingService;
+import org.apache.http.util.TextUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,10 +25,15 @@ public class CoinFlippingServer extends Transmitter {
     private static final int SERVER_PORT = 6882;
     private static final String BROKER_URI = "https://52.35.76.130:8443/broker/1.0/join";
     private static final String SERVER_NAME = "GeistigUnbewaff.net";
+    private String mName;
     private Integer mPort;
 
     // TODO: parametrize port
-    public CoinFlippingServer(Integer port) {
+    public CoinFlippingServer(String name, Integer port) {
+        mName = name;
+        if (StringUtil.isEmpty(mName)) {
+            mName = SERVER_NAME;
+        }
         mPort = port;
         tlsNetwork = new TLSNetwork(TLSNetwork.SERVER, this);
     }
@@ -53,7 +60,7 @@ public class CoinFlippingServer extends Transmitter {
             URL whatismyip = new URL("http://checkip.amazonaws.com");
             BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
             String myIp = in.readLine();
-            new HttpPingingService(BROKER_URI, SERVER_NAME, myIp + ":" + serverPort, "ssl-certs/tipa_keystore.jks", "secret").start();
+            new HttpPingingService(BROKER_URI, mName, myIp + ":" + serverPort, "ssl-certs/tipa_keystore.jks", "secret").start();
         } catch (CertificateException | NoSuchAlgorithmException | IOException | KeyStoreException | KeyManagementException e) {
             e.printStackTrace();
         }

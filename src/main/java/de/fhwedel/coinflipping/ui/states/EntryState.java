@@ -23,7 +23,7 @@ public class EntryState extends UIMultipleSelectionState {
             case 0:
                 return new ServerSelectionState();
             case 1:
-                return new PortEntryState();
+                return new ServerNameEntryState();
         }
 
         return new ErrorState();
