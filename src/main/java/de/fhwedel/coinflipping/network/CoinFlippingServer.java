@@ -5,12 +5,24 @@ import de.fhwedel.coinflipping.model.Protocol;
 import de.fhwedel.coinflipping.tls.network.OwnTrustManager;
 import de.fhwedel.coinflipping.tls.network.TLSNetwork;
 import de.fhwedel.coinflipping.util.Log;
+import gr.planetz.impl.HttpPingingService;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 /**
  * Created by tim on 09.12.2015.
  */
 public class CoinFlippingServer extends Transmitter {
     private static final int SERVER_PORT = 6882;
+    private static final String BROKER_URI = "https://52.35.76.130:8443/broker/1.0/join";
+    private static final String SERVER_NAME = "GeistigUnbewaff.net";
     private Integer mPort;
 
     // TODO: parametrize port
@@ -36,6 +48,15 @@ public class CoinFlippingServer extends Transmitter {
 
         Log.info("Starting secure server on port: " + serverPort);
         messageListeners("Starting secure server on port: " + serverPort);
+
+        try {
+            URL whatismyip = new URL("http://checkip.amazonaws.com");
+            BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+            String myIp = in.readLine();
+            new HttpPingingService(BROKER_URI, SERVER_NAME, myIp + ":" + serverPort, "ssl-certs/tipa_keystore.jks", "secret").start();
+        } catch (CertificateException | NoSuchAlgorithmException | IOException | KeyStoreException | KeyManagementException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
