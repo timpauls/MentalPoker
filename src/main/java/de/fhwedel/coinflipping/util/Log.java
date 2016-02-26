@@ -26,14 +26,10 @@ public class Log {
     }
 
     public static void error(String message) {
-        if (IS_DEBUG) {
-            mLog.log(Level.SEVERE, message);
-        }
+        mLog.log(Level.SEVERE, message);
     }
 
     public static void error(String message, Throwable throwable) {
-        if(IS_DEBUG) {
-            mLog.log(Level.SEVERE, message, throwable);
-        }
+        mLog.log(Level.SEVERE, message, throwable);
     }
 }
