@@ -44,3 +44,17 @@ Example:
 `java -jar MentalPoker-all-1.0-SNAPSHOT.jar --client localhost 6882`
 
 Both, client and server, may be launched with the optional last parameter `--log` to enable display of log messages.
+
+####Update 2016/02/26:
+Argument parsing is now independent from argument order, however the examples above still work as expected. When supplying
+both server and client arguments, the program will try to launch as a server.
+Also, the new optional parameter `--broker HOST PORT` can be used to specify a non-default broker.
+
+Examples of valid calls:
+```
+java -jar MentalPoker-all-1.0-SNAPSHOT.jar --client localhost 6882 --broker 192.168.1.5 4321
+```
+
+```
+java -jar MentalPoker-all-1.0-SNAPSHOT.jar --interactive --log --broker 192.168.1.5 4321
+```

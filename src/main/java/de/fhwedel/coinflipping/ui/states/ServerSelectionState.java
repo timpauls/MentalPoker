@@ -1,5 +1,6 @@
 package de.fhwedel.coinflipping.ui.states;
 
+import de.fhwedel.coinflipping.config.GeneralConfig;
 import de.fhwedel.coinflipping.network.CoinFlippingClient;
 import de.fhwedel.coinflipping.network.Transmitter;
 import gr.planetz.impl.HttpPingingService;
@@ -29,7 +30,7 @@ public class ServerSelectionState extends UIMultipleSelectionState implements Tr
             List<String> options = new ArrayList<>();
             options.add("Localhost - localhost:6882");
 
-            HttpPingingService pingingService = new HttpPingingService("https://52.35.76.130:8443/broker/1.0/players", "", "", "ssl-certs/tipa_keystore.jks", "secret");
+            HttpPingingService pingingService = new HttpPingingService(GeneralConfig.getBrokerPlayerUrl(), "", "", "ssl-certs/tipa_keystore.jks", "secret");
             Map<String, String> players = pingingService.getPlayersDirectlyOverHttpGetRequest();
             for (String name : players.keySet()) {
                 options.add(name + " - " + players.get(name));
